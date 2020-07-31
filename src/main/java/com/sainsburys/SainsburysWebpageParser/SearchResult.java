@@ -25,6 +25,7 @@ public class SearchResult {
 		this.description = description;
 	}
 	
+	//create Json array for search result class
 	public ObjectNode toJSON() {
 		ObjectNode jObj = new ObjectNode(null);
 		jObj.put("title", title);

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Total {
+	
 	float gross;
 	float vat;
 	
@@ -15,6 +16,7 @@ public class Total {
 		this.vat = vat;
 	}
 	
+	//create JSON array for gross and vat
 	public ObjectNode toJson(){
 		ObjectNode jObj = mapper.createObjectNode();
 		jObj.put("gross", gross);

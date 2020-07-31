@@ -24,7 +24,8 @@ public class Scraper {
 	public Scraper(String url) {
 		this.url = url;
 	}
-
+	
+	//class for getting the product information into an array
 	public ArrayList<SearchResult> getProduct(String theUrl) throws IOException {
 
 		String title = "";
@@ -48,13 +49,14 @@ public class Scraper {
 			}
 
 			// Get price per unit
-			String priceElement = element.select("p.pricePerUnit").first().text();
+			Element priceElement = element.select("p.pricePerUnit").first();
 			if (priceElement == null) {
 				unit_Price = 0.0f;
 			} else {
-				priceElement = priceElement.replace("£", "");
-				priceElement = priceElement.replace("/unit", "");
-				float pricePerUnit = Float.parseFloat(priceElement);
+				String price = priceElement.text();
+				price = price.replace("£", "");
+				price = price.replace("/unit", "");
+				float pricePerUnit = Float.parseFloat(price);
 				unit_Price = pricePerUnit;
 			}
 
@@ -90,6 +92,8 @@ public class Scraper {
 		return searchResults;
 	}
 
+	
+	//Class for putting all products in JSon file
 	public String getJson() throws JsonGenerationException, JsonMappingException, IOException {
 		// create variables for vat and gross
 		float totalPrice = 0.0f;
@@ -101,7 +105,8 @@ public class Scraper {
 		ArrayNode arrayNode = mapper.createArrayNode();
 
 		ArrayList<SearchResult> results = getProduct(url);
-
+		
+		// Get total price and add each product info to JSon array
 		for (SearchResult result : results) {
 			totalPrice += result.getUnit_price();
 			arrayNode.add(result.toJSON());
@@ -110,7 +115,8 @@ public class Scraper {
 			
 		
 		vat = (float) (gross * 0.2);
-
+		
+		// Add gross and vat to JSon array
 		Total total = new Total(gross, vat);
 		ArrayNode totalArray = mapper.createArrayNode();
 		totalArray.add(total.toJson());

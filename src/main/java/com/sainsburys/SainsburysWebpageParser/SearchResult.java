@@ -10,14 +10,14 @@ import org.jsoup.select.Elements;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class ProductInfo {
+public class SearchResult {
 	
 	private String title;
 	private float kcal_per_100g;
 	private float unit_price;
 	private String description;
 	
-	public ProductInfo(String title, float kcal_per_100g, float unit_price, String description) {
+	public SearchResult(String title, float kcal_per_100g, float unit_price, String description) {
 		super();
 		this.title = title;
 		this.kcal_per_100g = kcal_per_100g;
@@ -86,7 +86,7 @@ public class ProductInfo {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		ProductInfo other = (ProductInfo) obj;
+		SearchResult other = (SearchResult) obj;
 		if (description == null) {
 			if (other.description != null)
 				return false;

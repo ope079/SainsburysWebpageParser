@@ -8,16 +8,18 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class SearchResult {
+public class Result {
 	
 	private String title;
 	private float kcal_per_100g;
 	private float unit_price;
 	private String description;
+	ObjectMapper mapper = new ObjectMapper();
 	
-	public SearchResult(String title, float kcal_per_100g, float unit_price, String description) {
+	public Result(String title, float kcal_per_100g, float unit_price, String description) {
 		super();
 		this.title = title;
 		this.kcal_per_100g = kcal_per_100g;
@@ -27,7 +29,7 @@ public class SearchResult {
 	
 	//create Json array for search result class
 	public ObjectNode toJSON() {
-		ObjectNode jObj = new ObjectNode(null);
+		ObjectNode jObj =  mapper.createObjectNode();
 		jObj.put("title", title);
 		jObj.put("kcal_per_100g", kcal_per_100g);
 		jObj.put("unit_price", unit_price);
@@ -87,7 +89,7 @@ public class SearchResult {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		SearchResult other = (SearchResult) obj;
+		Result other = (Result) obj;
 		if (description == null) {
 			if (other.description != null)
 				return false;
@@ -107,7 +109,7 @@ public class SearchResult {
 
 	@Override
 	public String toString() {
-		return "SearchResult [title=" + title + ", kcal_per_100g=" + kcal_per_100g + ", unit_price=" + unit_price
+		return "Result [title=" + title + ", kcal_per_100g=" + kcal_per_100g + ", unit_price=" + unit_price
 				+ ", description=" + description + "]";
 	}
 	

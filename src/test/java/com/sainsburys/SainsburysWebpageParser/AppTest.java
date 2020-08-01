@@ -1,38 +1,64 @@
 package com.sainsburys.SainsburysWebpageParser;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
+import org.junit.After;
+import org.junit.Before;
 
-/**
- * Unit test for simple App.
- */
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+import java.util.ArrayList;
+
 public class AppTest 
-    extends TestCase
 {
-    /**
-     * Create the test case
-     *
-     * @param testName name of the test case
-     */
-    public AppTest( String testName )
+	Scraper scraper;
+    String url;
+    
+    public AppTest( )
     {
-        super( testName );
+    	
     }
 
-    /**
-     * @return the suite of tests being tested
-     */
-    public static Test suite()
-    {
-        return new TestSuite( AppTest.class );
+
+    @Before
+    public void setUp() {
+        
+        {
+            url = "https://jsainsburyplc.github.io/serverside-test/site/www.sainsburys.co.uk/webapp/wcs/stores/servlet/gb/groceries/berries-cherries-currants6039.html";
+            scraper = new Scraper(url);
+        }
     }
 
-    /**
-     * Rigourous Test :-)
-     */
-    public void testApp()
-    {
-        assertTrue( true );
+    @After
+    public void tearDown() {
+        scraper = null;
     }
+
+    @Test
+    public void testGetJsonDoesNotReturnEmptyJson() {
+        String json = scraper.getJson();
+        assertTrue(!json.isEmpty());
+    }
+    
+    @Test
+    public void testGetJsonReturnsResultAndTotal(){
+    	String json = scraper.getJson().toString();
+    	assertTrue(json.contains("results") && json.contains("total"));
+    }
+    
+    @Test
+    public void testGetJsonReturnsProduct() {
+        String json = scraper.getJson().toString();
+        assertTrue(json.contains("Sainsbury's Mixed Berry Twin Pack 200g"));
+    }
+    
+    @Test
+    public void testGetProductNotEmpty(){
+    	ArrayList<Result> results = scraper.getProduct(url);
+    	assertTrue(!results.isEmpty());
+    	assertTrue(!results.get(1).getDescription().isEmpty());
+    	assertTrue(!results.get(2).getTitle().isEmpty());
+    	assertTrue(results.get(3).getKcal_per_100g() > 0.0f);
+    	assertTrue(results.get(4).getUnit_price() > 0.0f);
+    }
+
 }

@@ -21,19 +21,20 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class Scraper {
 
 	String url;
-	ArrayList<SearchResult> searchResults = new ArrayList<SearchResult>();
+	ArrayList<Result> searchResults = new ArrayList<Result>();
 
 	public Scraper(String url) {
 		this.url = url;
 	}
 
 	// class for getting the product information into an array
-	public ArrayList<SearchResult> getProduct(String theUrl) {
+	public ArrayList<Result> getProduct(String theUrl) {
 
 		String title = "";
 		float kcal_Per_100g = 0.0f;
 		float unit_Price = 0.0f;
 		String description = "";
+		boolean hasTable = false;
 
 		try {
 			Document page = Jsoup.connect(theUrl).userAgent("Jsoup Scraper").get();
@@ -65,33 +66,38 @@ public class Scraper {
 				}
 
 				// Get the link for itemName and scrape
-				theUrl = element.select("div.productNameAndPromotions").first().getElementsByTag("a").first()
+				String innerUrl = element.select("div.productNameAndPromotions").first().getElementsByTag("a").first()
 						.attr("abs:href").toString();
-				Document thePage = Jsoup.connect(theUrl).userAgent("Jsoup Scraper").get();
+				Document thePage = Jsoup.connect(innerUrl).userAgent("Jsoup Scraper").get();
 
 				// Get the kCal per 100g
-				Element el = thePage.select("tr.tableRow0").first();
-				if (el == null) {
-					kcal_Per_100g = 0.0f;
-				} else {
-					Element kCalElement = el.getElementsByTag("td").first();
-					String kCalStr = el.text();
+				Elements el = thePage.select("div.tabs");
+				Elements pageBodyChildren = new Elements();
+				// Check if subpage element contains a table element
+				Elements hasChild = el.select("div.tableWrapper");
+				
+					if (hasChild.size()> 0){
+					Element kCalElement = el.first().getElementsByTag("tbody").first().getElementsByTag("tr")
+						.first().nextElementSibling().getElementsByTag("td").first();
+					String kCalStr = kCalElement.text();
 					kCalStr = kCalStr.replaceAll("\\s(.*)", "");
 					kCalStr = kCalStr.replace("kcal", "");
 					float kcalPer100 = Float.parseFloat(kCalStr);
-					kcal_Per_100g = kcalPer100;
-				}
-
+					kcal_Per_100g = kcalPer100;	}	
+					else{
+						kcal_Per_100g  = 0;
+					}
+				
 				// Get the product description
-				el = thePage.select("div.productText").first().getElementsByTag("p").first();
-				if (el == null) {
+				Element descEl = thePage.select("div.productText").first().getElementsByTag("p").first();
+				if (descEl == null) {
 					description = "";
 				} else {
-					description = el.text();
+					description = descEl.text();
 			}
 
 				// Add the Product search results to arraylist
-				searchResults.add(new SearchResult(title, kcal_Per_100g, unit_Price, description));
+				searchResults.add(new Result(title, kcal_Per_100g, unit_Price, description));
 			}
 			
 		} catch (IOException ex) {
@@ -114,12 +120,13 @@ public class Scraper {
 		ArrayNode totalArray = mapper.createArrayNode();
 		
 		//extract gross from product results and add to JSON ArrayNode
-		ArrayList<SearchResult> results = getProduct(url);
-		for (SearchResult result : results) {
+		ArrayList<Result> results = getProduct(url);
+		for (Result result : results) {
 			gross += result.getUnit_price();
 			arrayNode.add(result.toJSON());
 			json.put("results", arrayNode);
 		}
+		;
 		
 		//Add gross and vat to total arrayNode. Add to final JSon ArrayNode
 		vat = (float) (gross * 0.2);

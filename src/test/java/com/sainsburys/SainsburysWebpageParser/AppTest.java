@@ -4,6 +4,9 @@ import org.junit.After;
 import org.junit.Before;
 
 import org.junit.Test;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
@@ -34,19 +37,19 @@ public class AppTest
     }
 
     @Test
-    public void testGetJsonDoesNotReturnEmptyJson() {
+    public void testGetJsonDoesNotReturnEmptyJson() throws JsonProcessingException {
         String json = scraper.getJson();
         assertTrue(!json.isEmpty());
     }
     
     @Test
-    public void testGetJsonReturnsResultAndTotal(){
+    public void testGetJsonReturnsResultAndTotal() throws JsonProcessingException {
     	String json = scraper.getJson().toString();
     	assertTrue(json.contains("results") && json.contains("total"));
     }
     
     @Test
-    public void testGetJsonReturnsProduct() {
+    public void testGetJsonReturnsProduct() throws JsonProcessingException{
         String json = scraper.getJson().toString();
         assertTrue(json.contains("Sainsbury's Mixed Berry Twin Pack 200g"));
     }

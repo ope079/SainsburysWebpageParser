@@ -1,25 +1,29 @@
 package com.sainsburys.SainsburysWebpageParser;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class Result {
 	
 	private String title;
-	private float kcal_per_100g;
+	
+	//Exclude kcal_per_100g fields with 0.00
+	@JsonInclude(Include.NON_DEFAULT)
+	private int kcal_per_100g;
+	
 	private float unit_price;
+	
+	//Exclude description fields with no values
+	@JsonInclude(Include.NON_DEFAULT)
 	private String description;
+	
 	ObjectMapper mapper = new ObjectMapper();
 	
-	public Result(String title, float kcal_per_100g, float unit_price, String description) {
+	
+	public Result(String title, int kcal_per_100g, float unit_price, String description) {
 		super();
 		this.title = title;
 		this.kcal_per_100g = kcal_per_100g;
@@ -27,16 +31,16 @@ public class Result {
 		this.description = description;
 	}
 	
-	//create Json array for search result class
-	public ObjectNode toJSON() {
-		ObjectNode jObj =  mapper.createObjectNode();
-		jObj.put("title", title);
-		jObj.put("kcal_per_100g", kcal_per_100g);
-		jObj.put("unit_price", unit_price);
-		jObj.put("description", description);
-        
-        return jObj;
+	//create Json object for search result class
+	public ObjectNode toJSON() throws JsonProcessingException 
+			{
+		ObjectNode jObj = mapper.createObjectNode();
+		Result result = new Result(title, kcal_per_100g, unit_price, description);
+		//map result class to json object using object mapper
+		ObjectNode jString = mapper.valueToTree(result);
+        return jString;
     }
+	
 
 	public String getTitle() {
 		return title;
@@ -50,7 +54,7 @@ public class Result {
 		return kcal_per_100g;
 	}
 
-	public void setKcal_per_100g(float kcal_per_100g) {
+	public void setKcal_per_100g(int kcal_per_100g) {
 		this.kcal_per_100g = kcal_per_100g;
 	}
 
@@ -70,12 +74,15 @@ public class Result {
 		this.description = description;
 	}
 
+	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((description == null) ? 0 : description.hashCode());
-		result = prime * result + Float.floatToIntBits(kcal_per_100g);
+		result = prime * result + kcal_per_100g;
+		result = prime * result + ((mapper == null) ? 0 : mapper.hashCode());
 		result = prime * result + ((title == null) ? 0 : title.hashCode());
 		result = prime * result + Float.floatToIntBits(unit_price);
 		return result;
@@ -95,7 +102,12 @@ public class Result {
 				return false;
 		} else if (!description.equals(other.description))
 			return false;
-		if (Float.floatToIntBits(kcal_per_100g) != Float.floatToIntBits(other.kcal_per_100g))
+		if (kcal_per_100g != other.kcal_per_100g)
+			return false;
+		if (mapper == null) {
+			if (other.mapper != null)
+				return false;
+		} else if (!mapper.equals(other.mapper))
 			return false;
 		if (title == null) {
 			if (other.title != null)
@@ -109,7 +121,7 @@ public class Result {
 
 	@Override
 	public String toString() {
-		return "Result [title=" + title + ", kcal_per_100g=" + kcal_per_100g + ", unit_price=" + unit_price
+		return "[title=" + title + ", kcal_per_100g=" + kcal_per_100g + ", unit_price=" + unit_price
 				+ ", description=" + description + "]";
 	}
 	

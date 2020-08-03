@@ -34,7 +34,6 @@ public class Result {
 	//create Json object for search result class
 	public ObjectNode toJSON() throws JsonProcessingException 
 			{
-		ObjectNode jObj = mapper.createObjectNode();
 		Result result = new Result(title, kcal_per_100g, unit_price, description);
 		//map result class to json object using object mapper
 		ObjectNode jString = mapper.valueToTree(result);
@@ -73,8 +72,6 @@ public class Result {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
-	
 
 	@Override
 	public int hashCode() {

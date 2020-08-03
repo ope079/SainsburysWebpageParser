@@ -18,9 +18,8 @@ public class Total {
 	
 	//create JSON array for gross and vat
 	public ObjectNode toJson(){
-		ObjectNode jObj = mapper.createObjectNode();
-		jObj.put("gross", gross);
-		jObj.put("vat", vat);
+		Total total = new Total(gross, vat);
+		ObjectNode jObj = mapper.valueToTree(total);
 		return jObj;
 	}
 

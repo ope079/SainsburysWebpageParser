@@ -2,6 +2,7 @@ package com.sainsburys.SainsburysWebpageParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -75,13 +76,12 @@ public class Scraper {
 				// Get the kCal per 100g
 				Elements el = thePage.select("div.tabs");
 				Elements pageBodyChildren = new Elements();
+				
 				// Check if hyperlink page element contains a table element
 				Elements hasChild = el.select("div.tableWrapper");
-				
 					if (hasChild.size()> 0){
-					Element kCalElement = el.first().getElementsByTag("tbody").first().getElementsByTag("tr")
-						.first().nextElementSibling().getElementsByTag("td").first();
-					String kCalStr = kCalElement.text();
+					String kCalStr = el.first().getElementsByTag("tbody").first().getElementsByTag("tr")
+						.first().nextElementSibling().getElementsByTag("td").first().text();
 					kCalStr = kCalStr.replaceAll("\\s(.*)", "");
 					kCalStr = kCalStr.replace("kcal", "");
 					int kcalPer100 = Integer.parseInt(kCalStr);
@@ -98,12 +98,13 @@ public class Scraper {
 					description = descEl.text();
 			}
 
-				// Add the Product search results to arraylist
+				// Add the Product search results to the search results arraylist
 				searchResults.add(new Result(title, kcal_Per_100g, unit_Price, description));
+				
 			}
-			
-		} catch (IOException ex) {
-			Logger.getLogger(Scraper.class.getName()).log(Level.SEVERE, null, ex);
+		//Catch nullPointer exception
+		} catch (IOException e) {
+			Logger.getLogger(Scraper.class.getName()).log(Level.WARNING, null, e);
 		}
 		return searchResults;
 		
@@ -124,17 +125,18 @@ public class Scraper {
 		//extract gross from product results and add to JSON ArrayNode
 		ArrayList<Result> results = getProduct(url);
 		for (Result result : results) {
+			//calculate gross from each unit_price
 			gross += result.getUnit_price();
 			arrayNode.add(result.toJSON());
 			json.put("results", arrayNode);
 		}
-		
+			
 		//Add gross and vat to total arrayNode. Add to final JSon ArrayNode
 		vat = (float) (gross * 0.2);
 		Total total = new Total(gross, vat);
 		totalArray.add(total.toJson());
 		json.put("total", totalArray);
-
+		
 		return json.toPrettyString();
 
 	}

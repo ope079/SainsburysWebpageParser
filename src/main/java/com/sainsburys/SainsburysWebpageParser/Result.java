@@ -45,7 +45,7 @@ public class Result {
 		return title;
 	}
 
-	public float getKcal_per_100g() {
+	public int getKcal_per_100g() {
 		return kcal_per_100g;
 	}
 
